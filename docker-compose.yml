@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  pismo:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: pismo
+      MYSQL_USER: pismouser
+      MYSQL_PASSWORD: pismopassword
+      MYSQL_ROOT_PASSWORD: pismopassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
