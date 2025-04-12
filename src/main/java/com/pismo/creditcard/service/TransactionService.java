@@ -2,6 +2,7 @@ package com.pismo.creditcard.service;
 
 import com.pismo.creditcard.dto.TransactionDTO;
 import com.pismo.creditcard.enums.OperationTypeEnum;
+import com.pismo.creditcard.exception.InvalidObjectException;
 import com.pismo.creditcard.exception.ResourceNotFoundException;
 import com.pismo.creditcard.model.Account;
 import com.pismo.creditcard.model.OperationType;
@@ -30,7 +31,7 @@ public class TransactionService {
         //validating transactions
         Account account = accountRepo.getAccountById(transactionDto.getAccountId());
         OperationType operationType = operationTypeRepo.getSpecifiedResource(transactionDto.getOperationTypeId());
-        validateAccountAndOperationType(account,operationType);
+        validateAccountAndOperationType(account,operationType,transactionDto);
 
         /*
          * Transactions of purchase and withdrawal are always negative amounts,
@@ -60,12 +61,16 @@ public class TransactionService {
     }
 
 
-    private void validateAccountAndOperationType(Account account, OperationType operationType) {
+    private void validateAccountAndOperationType(Account account, OperationType operationType,TransactionDTO transactionDto) {
         if(account==null){
             throw new ResourceNotFoundException("Account specified in transaction does not exist");
         }
         if(operationType==null){
             throw new ResourceNotFoundException("Operation specified is not supported");
+        }
+
+        if(transactionDto.getAmount()==null||transactionDto.getAmount().equals(0)){
+            throw new InvalidObjectException("amount can't be zero or null");
         }
     }
 
