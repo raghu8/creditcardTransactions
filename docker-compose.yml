@@ -12,6 +12,26 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppismopassword" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  creditcard-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: creditcard-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      pismo:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://pismo:3306/pismo
+      SPRING_DATASOURCE_USERNAME: pismouser
+      SPRING_DATASOURCE_PASSWORD: pismopassword
 
 volumes:
   mysql_data:
