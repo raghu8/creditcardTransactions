@@ -1,6 +1,7 @@
 package com.pismo.creditcard.service;
 
 import com.pismo.creditcard.dto.TransactionDTO;
+import com.pismo.creditcard.enums.OperationTypeEnum;
 import com.pismo.creditcard.exception.ResourceNotFoundException;
 import com.pismo.creditcard.model.Account;
 import com.pismo.creditcard.model.OperationType;
@@ -11,6 +12,7 @@ import com.pismo.creditcard.repository.TransactionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -30,6 +32,19 @@ public class TransactionService {
         OperationType operationType = operationTypeRepo.getSpecifiedResource(transactionDto.getOperationTypeId());
         validateAccountAndOperationType(account,operationType);
 
+        /*
+         * Transactions of purchase and withdrawal are always negative amounts,
+         *  whereas payments are positive amounts.
+         */
+        BigDecimal amount = transactionDto.getAmount();
+        OperationTypeEnum operationTypeEnum = OperationTypeEnum.fromId(operationType.getOperationTypeId().intValue());
+
+        if (operationTypeEnum == OperationTypeEnum.NORMAL_PURCHASE ||
+                operationTypeEnum == OperationTypeEnum.PURCHASE_WITH_INSTALLMENTS ||
+                operationTypeEnum == OperationTypeEnum.WITHDRAWAL) {
+            amount = amount.negate();
+        }
+
         Transaction transaction = Transaction.builder()
                 .account(account)
                 .operationType(operationType)
@@ -40,7 +55,7 @@ public class TransactionService {
         LocalDateTime eventDate = LocalDateTime.now();
         transactionRepo.insertTransaction(transaction.getAccount().getAccountId(),
                 transaction.getOperationType().getOperationTypeId(),
-                transaction.getAmount(),
+                amount,
                 eventDate);
     }
 
