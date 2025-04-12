@@ -38,6 +38,7 @@ This repository manages credit card transactions, including account and transact
 
 ## **API Endpoints**
 
+Swagger url: http://localhost:8080/swagger-ui/index.html#/
 ### **AccountController**
 - **Retrieve Account Details**
   ```http
