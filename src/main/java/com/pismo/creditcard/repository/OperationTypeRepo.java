@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface OperationTypeRepo extends JpaRepository<OperationType,Long> {
-    @Query(value = "select * from OperationTypes",nativeQuery = true)
+    @Query(value = "select * from operation_type",nativeQuery = true)
     List<OperationType> getAllOperations();
 
-    @Query(value = "select * from OperationTypes where operation_type_id = :id limit 1",nativeQuery = true)
+    @Query(value = "select * from operation_type where operation_type_id = :id limit 1",nativeQuery = true)
     OperationType getSpecifiedResource(@RequestParam("id")Long id);
 }

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "OperationTypes")
 public class OperationType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

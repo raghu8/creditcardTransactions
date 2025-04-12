@@ -15,9 +15,9 @@ public interface TransactionRepo extends JpaRepository<Transaction,Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO Transaction (account_id, operation_type_id, amount, event_date) VALUES (?1, ?2, ?3, ?4)", nativeQuery = true)
+    @Query(value = "INSERT INTO transaction (account_id, operation_type_id, amount, event_date) VALUES (?1, ?2, ?3, ?4)", nativeQuery = true)
     void insertTransaction(Long accountId, Long operationTypeId, BigDecimal amount, LocalDateTime eventDate);
 
-    @Query(value = "Select * from Transaction where transaction_id = :id limit 1", nativeQuery = true)
+    @Query(value = "Select * from transaction where transaction_id = :id limit 1", nativeQuery = true)
     Transaction getTransaction(Long id);
 }
