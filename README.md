@@ -13,32 +13,22 @@ This repository manages credit card transactions, including account and transact
 ---
 
 ## **Execution Instructions**
-1. Clone the repository:
-   ```bash
-   git pull https://github.com/raghu8/creditcardTransactions.git
-   ```
+Mac terminal command
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-2. Build the application (skip tests):
-   ```bash
-   ./gradlew build -x test
-   ```
-   This will generate the `.jar` file for the application.
-
-3. Build Docker images:
-   ```bash
-   docker-compose build
-   ```
-
-4. Start Docker containers:
-   ```bash
-   docker-compose up -d
-   ```
+Windows terminal commands
+```bash
+./run.sh  (Note: ensure this is being run in git bash)
+```
 
 ---
 
 ## **API Endpoints**
 
-Swagger url: http://localhost:8080/swagger-ui/index.html#/
+Swagger URL: [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
 ![image](https://github.com/user-attachments/assets/e442072b-3ef3-4d8d-87d1-3463df80d20f)
 
 ### **AccountController**
@@ -112,8 +102,4 @@ Swagger url: http://localhost:8080/swagger-ui/index.html#/
    - Generate a double-entry ledger for transactions within a specified date range.
    - Provide a downloadable CSV format for the ledger.
 
-4. **Automation Script**:
-   - Create a script to automate all the steps outlined in the execution instructions for ease of deployment.
-
 ---
-
