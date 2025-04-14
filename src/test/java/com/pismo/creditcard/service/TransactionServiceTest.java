@@ -34,7 +34,12 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
+    @InjectMocks
+    private AccountService accountService;
+
     private TransactionDTO sampleTransaction;
+
+    private TransactionDTO noAccountTransaction;
     private Account sampleAccount;
     private OperationType sampleOperationType;
 
@@ -58,6 +63,13 @@ class TransactionServiceTest {
         sampleTransaction.setOperationTypeId(1L);
         sampleTransaction.setAmount(BigDecimal.valueOf(100.00));
         sampleTransaction.setEventDate(LocalDateTime.now());
+
+        noAccountTransaction = new TransactionDTO();
+        noAccountTransaction.setTransactionId(1L);
+        noAccountTransaction.setAccountId(2L);
+        noAccountTransaction.setOperationTypeId(1L);
+        noAccountTransaction.setAmount(BigDecimal.valueOf(100.00));
+        noAccountTransaction.setEventDate(LocalDateTime.now());
     }
 
     @Test
@@ -75,10 +87,10 @@ class TransactionServiceTest {
 
     @Test
     void testCreateTransaction_AccountNotFound() {
-        when(accountRepo.getAccountById(1L)).thenReturn(null);
-
-        assertThrows(ResourceNotFoundException.class, () -> transactionService.createTransaction(sampleTransaction));
-        verify(accountRepo, times(1)).getAccountById(1L);
+        when(accountRepo.getAccountById(2L)).thenReturn(null);
+        when(operationTypeRepo.getSpecifiedResource(1L)).thenReturn(sampleOperationType);
+        assertThrows(ResourceNotFoundException.class, () -> transactionService.createTransaction(noAccountTransaction));
+        verify(accountRepo, times(1)).getAccountById(2L);
     }
 
     @Test
