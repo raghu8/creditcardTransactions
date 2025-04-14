@@ -10,6 +10,7 @@ import com.pismo.creditcard.model.Transaction;
 import com.pismo.creditcard.repository.AccountRepo;
 import com.pismo.creditcard.repository.OperationTypeRepo;
 import com.pismo.creditcard.repository.TransactionRepo;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
+@Log4j2
 public class TransactionService {
     @Autowired
     private TransactionRepo transactionRepo;
@@ -27,19 +29,29 @@ public class TransactionService {
     @Autowired
     private OperationTypeRepo operationTypeRepo;
 
-    public void createTransaction(TransactionDTO transactionDto) {
-        //validating transactions
-        Account account = accountRepo.getAccountById(transactionDto.getAccountId());
-        OperationType operationType = operationTypeRepo.getSpecifiedResource(transactionDto.getOperationTypeId());
-        validateAccountAndOperationType(account,operationType,transactionDto);
 
+
+    public void createTransaction(TransactionDTO transactionDto) {
+        log.info("creating transaction");
+        log.info("validating operationType: ",transactionDto.getOperationTypeId());
+        OperationType verifiedOperationType = verifiedOperationType(transactionDto.getOperationTypeId());
+
+        //validating account
+        log.info("validating account: ",transactionDto.getAccountId());
+        Account verifiedAccount = verifiedAccount(transactionDto.getAccountId());
+
+        log.info("validating input amount: ",transactionDto.getAmount());
+        if(transactionDto.getAmount()==null||transactionDto.getAmount().equals(0)){
+            throw new InvalidObjectException("amount can't be zero or null");
+        }
         /*
          * Transactions of purchase and withdrawal are always negative amounts,
          *  whereas payments are positive amounts.
          */
         BigDecimal amount = transactionDto.getAmount();
-        OperationTypeEnum operationTypeEnum = OperationTypeEnum.fromId(operationType.getOperationTypeId().intValue());
+        OperationTypeEnum operationTypeEnum = OperationTypeEnum.fromId(verifiedOperationType.getOperationTypeId().intValue());
 
+        log.info("Converting all non payment operations to negative values");
         if (operationTypeEnum == OperationTypeEnum.NORMAL_PURCHASE ||
                 operationTypeEnum == OperationTypeEnum.PURCHASE_WITH_INSTALLMENTS ||
                 operationTypeEnum == OperationTypeEnum.WITHDRAWAL) {
@@ -47,8 +59,8 @@ public class TransactionService {
         }
 
         Transaction transaction = Transaction.builder()
-                .account(account)
-                .operationType(operationType)
+                .account(verifiedAccount)
+                .operationType(verifiedOperationType)
                 .amount(transactionDto.getAmount())
                 .eventDate(transactionDto.getEventDate())
                 .build();
@@ -60,18 +72,23 @@ public class TransactionService {
                 eventDate);
     }
 
-
-    private void validateAccountAndOperationType(Account account, OperationType operationType,TransactionDTO transactionDto) {
+    private Account verifiedAccount(Long accountId) {
+        log.info("retriving account specified by transaction: ",accountId);
+        Account account = accountRepo.getAccountById(accountId);
         if(account==null){
             throw new ResourceNotFoundException("Account specified in transaction does not exist");
         }
+
+        return account;
+    }
+
+    private OperationType verifiedOperationType(Long operationTypeId) {
+        log.info("verifying operation type specified by transaction: ",operationTypeId);
+        OperationType operationType = operationTypeRepo.getSpecifiedResource(operationTypeId);
         if(operationType==null){
             throw new ResourceNotFoundException("Operation specified is not supported");
         }
-
-        if(transactionDto.getAmount()==null||transactionDto.getAmount().equals(0)){
-            throw new InvalidObjectException("amount can't be zero or null");
-        }
+        return operationType;
     }
 
     public TransactionDTO getTransaction(Long id) {
